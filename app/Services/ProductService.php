@@ -19,8 +19,7 @@ class ProductService
     public function __construct(
         ProductRepositoryInterface $pri,
         ProductVariantsRepositoryInterface $pvri
-    )
-    {
+    ) {
         $this->pri = $pri;
         $this->pvri = $pvri;
     }
@@ -85,7 +84,7 @@ class ProductService
         }
 
         $attributes = array_unique($attributes);
-        $attributes = array_map(fn($name) => ['name' => $name], $attributes);
+        $attributes = array_map(fn ($name) => ['name' => $name], $attributes);
         Attribute::insertOrIgnore($attributes);
     }
 

@@ -17,7 +17,7 @@ class ProductImportService
         $productsToBeInserted = [];
         foreach ($products as &$product) {
             $uuid = Str::uuid()->toString();
-            if(!array_key_exists($product['product_sku'], $productsFromDb)) {
+            if (!array_key_exists($product['product_sku'], $productsFromDb)) {
                 $product['uuid'] = $uuid;
                 $productsToBeInserted[] = [
                     'uuid' => $uuid,
@@ -26,7 +26,7 @@ class ProductImportService
                     'description' => $product['description'],
                     'created_by' => null
                 ];
-            } else{
+            } else {
                 $product['uuid'] = $productsFromDb[strtoupper($product['product_sku'])];
             }
         }
@@ -70,7 +70,7 @@ class ProductImportService
             }
         }
 
-        $attributes = array_map(fn($name) => ['name' => $name], $attributes);
+        $attributes = array_map(fn ($name) => ['name' => $name], $attributes);
         Attribute::insertOrIgnore($attributes);
     }
 

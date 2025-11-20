@@ -11,7 +11,8 @@ use Illuminate\Queue\SerializesModels;
 
 class OrderUpdateMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $orderNum;
     public $name;
@@ -44,7 +45,7 @@ class OrderUpdateMail extends Mailable
     {
         return new Content(
             view: 'emails.order_update',
-                  with: [
+            with: [
                     'name' => $this->name,
                     'orderNum' => $this->orderNum,
                     'orderStatus' => $this->orderStatus,

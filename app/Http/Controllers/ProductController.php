@@ -26,8 +26,8 @@ class ProductController extends Controller
 
     public function search(ProductSearchRequest $request)
     {
-        $name = isset($request->validated()['name']) ? $request->validated()['name']: null;
-        $description = isset($request->validated()['description']) ? $request->validated()['description']: null;
+        $name = isset($request->validated()['name']) ? $request->validated()['name'] : null;
+        $description = isset($request->validated()['description']) ? $request->validated()['description'] : null;
 
         // Build ES query dynamically
         $must = [];
@@ -72,7 +72,7 @@ class ProductController extends Controller
         ];
 
         $response = $this->es->getClient()->search($params);
-        $results = array_map(fn($hit) => $hit['_source'], $response['hits']['hits']);
+        $results = array_map(fn ($hit) => $hit['_source'], $response['hits']['hits']);
         return response()->json($results);
     }
 
@@ -110,11 +110,11 @@ class ProductController extends Controller
     {
         $productData = $request->validated();
         $dataMapper = $this->ps->getProductMapper($productData);
-        $product = Product::with(['variants' => function($query) use ($dataMapper) {
+        $product = Product::with(['variants' => function ($query) use ($dataMapper) {
             $query->whereIn('variant_sku', array_keys($dataMapper));
         }])->findOrFail($productId);
 
-        DB::transaction(function () use ($product, $productData, $dataMapper){
+        DB::transaction(function () use ($product, $productData, $dataMapper) {
             $product->update(['name' => strtolower($productData['name']), 'description' => $productData['description'],]);
             $this->ps->update($product, $dataMapper);
         });

@@ -22,7 +22,9 @@ class ElasticService
 
     public function bulkIndex(string $index, array $documents)
     {
-        if (empty($documents)) return;
+        if (empty($documents)) {
+            return;
+        }
 
         $params = ['body' => []];
 
@@ -39,4 +41,3 @@ class ElasticService
         return $this->client->bulk($params);
     }
 }
-

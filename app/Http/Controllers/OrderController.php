@@ -13,6 +13,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Enums\OrderStatusEnum;
+
 use function Illuminate\Database\Eloquent\Relations\findOrFail;
 
 class OrderController extends Controller
@@ -62,7 +63,7 @@ class OrderController extends Controller
     public function store(OrderStoreRequest $request)
     {
         $validated = $request->validated();
-        DB::transaction(function () use ($validated){
+        DB::transaction(function () use ($validated) {
             $order = $this->os->createOrder($validated);
             $this->os->upsertOrderItems($order, $validated);
         });
@@ -81,7 +82,7 @@ class OrderController extends Controller
         $order = Order::where('status', OrderStatusEnum::PENDING->value)->findOrFail($orderId);
         $this->authorize('update', $order);
 
-        DB::transaction(function () use ($validated, $order){
+        DB::transaction(function () use ($validated, $order) {
             $this->os->updateOrder($order, $validated);
             $this->os->upsertOrderItems($order, $validated);
             $this->os->deleteItems($order, $validated);
@@ -96,15 +97,15 @@ class OrderController extends Controller
      */
     public function confirmOrder($orderId)
     {
-        try{
+        try {
             $order = Order::with('items')->where('status', OrderStatusEnum::PENDING->value)->findOrFail($orderId);
             $order->update(['status' => OrderStatusEnum::PROCESSING->value]);
             $this->os->updateStock($order->items, $order->status);
             $this->is->generateOrderInvoice($order);
             return \response()->json(['message' => __('messages.order.confirmed')]);
-        }catch (ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
             return \response()->json(['message' => $e->getMessage()]);
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             return \response()->json(['message' => __('messages.order.server_error')]);
         }
     }
@@ -115,16 +116,16 @@ class OrderController extends Controller
      */
     public function cancelOrder($orderId)
     {
-        try{
+        try {
             $order = Order::with('items')->where('status', OrderStatusEnum::PROCESSING->value)->findOrFail($orderId);
-            DB::transaction(function () use ($order){
+            DB::transaction(function () use ($order) {
                 $order->update(['status' => OrderStatusEnum::CANCELLED->value]);
                 $this->os->updateStock($order->items, $order->status);
             });
             return \response()->json(['message' => __('messages.order.cancelled')]);
-        } catch (ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
             return \response()->json(['message' => $e->getMessage()]);
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return \response()->json(['message' => __('messages.order.server_error')]);
         }
     }
@@ -136,16 +137,16 @@ class OrderController extends Controller
      */
     public function updateStatus($orderId)
     {
-        try{
+        try {
             $order = Order::whereNotIn('status', [OrderStatusEnum::PENDING->value, OrderStatusEnum::CANCELLED->value, OrderStatusEnum::DELIVERED->value])->findOrFail($orderId);
             $nextStatus = $this->os->getNextStatusToUpdate($order->status);
             $order->update(['status' => $nextStatus]);
             $user = User::findOrFail($order->user_id);
             SendOrderStatusUpdateEmail::dispatch($user->email, $user->name, $order->order_number, $order->status);
             return \response()->json(['message' => __('messages.order.status_updated') .' to: '. $nextStatus]);
-        } catch (ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
             return \response()->json(['message' => $e->getMessage()]);
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return \response()->json(['message' => __('messages.order.server_error')]);
         }
     }

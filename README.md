@@ -1,5 +1,9 @@
 ### Ecommerce project (Run Using Docker)
 
+#### Post man collection: [Link](https://automatedpro-4694.postman.co/workspace/AutomatedPro-Workspace~9b69f21a-6ee8-4421-8799-4ad3e782085e/collection/10198154-5dedf3ca-233a-4e08-905b-393446095da0?action=share&creator=10198154&active-environment=10198154-5d9604f3-296a-4278-af61-85ad8a7e65d1)
+
+
+
 ##### 1. Git pull project and go inside project-management-system directory
 ```angular2html
 git pull git@github.com:mahfuzdiu/bd-thalassemia.git

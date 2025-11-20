@@ -30,7 +30,7 @@ class ImportProductsCsv extends Command
      */
     public function handle(ProductImportService $pcs)
     {
-        $this->info("Processing CSV");
+        $this->info('Processing CSV');
         try {
             $pcs = app(ProductImportService::class);
             $es = app(ElasticService::class);

@@ -16,7 +16,7 @@ class OrderService
      */
     public function shippingCost($shippingMethod)
     {
-        return match($shippingMethod){
+        return match($shippingMethod) {
             ShippingMethodEnum::STANDARD->value => 60,
             ShippingMethodEnum::SUNDARBAN->value => 120,
             ShippingMethodEnum::FAST_COURIER->value => 100,
@@ -62,7 +62,7 @@ class OrderService
     {
         $productVariants = ProductVariant::whereIn('id', array_column($orderData['items'], 'product_variant_id'))->get()->keyBy('id');
         $cost = 0;
-        foreach ($orderData['items'] as $item){
+        foreach ($orderData['items'] as $item) {
             $cost = $cost + $item['quantity'] * $productVariants[$item['product_variant_id']]['price'];
         }
 
@@ -81,7 +81,7 @@ class OrderService
     public function upsertOrderItems($order, $orderData)
     {
         $orderItems = [];
-        foreach ($orderData['items'] as $item){
+        foreach ($orderData['items'] as $item) {
             $orderItems[] = [
                 'order_id' => $order->id,
                 'product_variant_id' => $item['product_variant_id'],
@@ -111,14 +111,14 @@ class OrderService
     {
         $productVariants = ProductVariant::whereIn('id', $items->keyBy('product_variant_id')->keys())->get()->keyBy('id');
         $updatedVariants = [];
-        foreach ($items as $item){
+        foreach ($items as $item) {
             $updatedVariants[] = [
                 'product_id' => $productVariants[$item['product_variant_id']]->product_id,
                 'variant_sku' => $productVariants[$item['product_variant_id']]->variant_sku,
-                "uuid" => $productVariants[$item['product_variant_id']]->uuid,
-                "stock" => $this->stockCalculation($productVariants, $item, $status),
-                "price" => $productVariants[$item['product_variant_id']]->price,
-                "updated_at" => now()->toDate(),
+                'uuid' => $productVariants[$item['product_variant_id']]->uuid,
+                'stock' => $this->stockCalculation($productVariants, $item, $status),
+                'price' => $productVariants[$item['product_variant_id']]->price,
+                'updated_at' => now()->toDate(),
             ];
         }
 
@@ -131,8 +131,9 @@ class OrderService
      * @param $status
      * @return mixed
      */
-    private function stockCalculation($productVariants, $item, $status){
-        return match($status){
+    private function stockCalculation($productVariants, $item, $status)
+    {
+        return match($status) {
             OrderStatusEnum::PROCESSING->value => $productVariants[$item->product_variant_id]['stock'] - $item['quantity'],
             OrderStatusEnum::CANCELLED->value => $productVariants[$item->product_variant_id]['stock'] + $item['quantity'],
         };
@@ -144,7 +145,7 @@ class OrderService
      */
     public function getNextStatusToUpdate($currentStatus)
     {
-        return match($currentStatus){
+        return match($currentStatus) {
             OrderStatusEnum::PROCESSING->value => OrderStatusEnum::SHIPPED->value,
             OrderStatusEnum::SHIPPED->value => OrderStatusEnum::DELIVERED->value
         };

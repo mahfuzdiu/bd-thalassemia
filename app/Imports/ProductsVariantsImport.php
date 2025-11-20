@@ -18,7 +18,8 @@ class ProductsVariantsImport implements WithHeadingRow, WithChunkReading, ToColl
      */
     private ElasticService $elasticService;
 
-    public function __construct(ProductImportService $pis, ElasticService $elasticService){
+    public function __construct(ProductImportService $pis, ElasticService $elasticService)
+    {
         $this->pis = $pis;
         $this->elasticService = $elasticService;
     }
@@ -53,7 +54,9 @@ class ProductsVariantsImport implements WithHeadingRow, WithChunkReading, ToColl
 
         foreach ($rows as $row) {
             // Skip empty rows
-            if (empty(array_filter($row->toArray()))) continue;
+            if (empty(array_filter($row->toArray()))) {
+                continue;
+            }
 
             $productSku = trim($row['product_sku']);
 
@@ -87,7 +90,7 @@ class ProductsVariantsImport implements WithHeadingRow, WithChunkReading, ToColl
 
         $products = array_values($grouped);
 
-        DB::transaction(function () use ($products){
+        DB::transaction(function () use ($products) {
             $this->pis->insertProducts($products);
             $this->pis->insertVariants($products);
             $this->pis->insertAttributes($products);

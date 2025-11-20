@@ -33,14 +33,14 @@ class AuthController extends Controller
      */
     public function login(UserLoginRequest $request)
     {
-        try{
+        try {
             $credentials = $request->validated();
-            if($jwtToken = JWTAuth::attempt($credentials)){
+            if ($jwtToken = JWTAuth::attempt($credentials)) {
                 return response()->json(['jwt_token' => $jwtToken]);
             }
             return \response()->json(['message' => __('messages.credentials_error')]);
 
-        } catch (JWTException $e){
+        } catch (JWTException $e) {
             return \response()->json(['message' => $e->getMessage()]);
         }
 
@@ -49,10 +49,10 @@ class AuthController extends Controller
     // 🔹 Logout
     public function logout()
     {
-        try{
+        try {
             JWTAuth::invalidate(JWTAuth::getToken());
             return response()->json(['message' => __('messages.logged_out')]);
-        }catch (JWTException $e){
+        } catch (JWTException $e) {
             return response()->json(['message' => $e->getMessage()]);
         }
     }
@@ -60,12 +60,12 @@ class AuthController extends Controller
 
     public function refreshToken()
     {
-        try{
+        try {
             $token = JWTAuth::getToken();
             $newToken = JWTAuth::refresh($token);
             return response()->json(['jwt_token' => $newToken, 'expires_in' => JWTAuth::factory()->getTTL() * 60]);
 
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return response()->json(['message' => __('messages.token_expiration_error')]);
         }
     }
