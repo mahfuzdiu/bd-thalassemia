@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\InvoiceService;
 use App\Services\OrderService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Enums\OrderStatusEnum;
@@ -16,6 +17,8 @@ use function Illuminate\Database\Eloquent\Relations\findOrFail;
 
 class OrderController extends Controller
 {
+    use AuthorizesRequests;
+
     public OrderService $os;
     /**
      * @var InvoiceService
@@ -76,6 +79,8 @@ class OrderController extends Controller
     {
         $validated = $request->validated();
         $order = Order::where('status', OrderStatusEnum::PENDING->value)->findOrFail($orderId);
+        $this->authorize('update', $order);
+
         DB::transaction(function () use ($validated, $order){
             $this->os->updateOrder($order, $validated);
             $this->os->upsertOrderItems($order, $validated);
