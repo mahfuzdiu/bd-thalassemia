@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Imports\ProductsVariantsImport;
+use App\Services\ElasticService;
 use App\Services\ProductImportService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -32,8 +33,9 @@ class ImportProductsCsv extends Command
         $this->info("Processing CSV");
         try {
             $pcs = app(ProductImportService::class);
+            $es = app(ElasticService::class);
             $filePath = storage_path('app/products.csv');
-            Excel::import(new ProductsVariantsImport($pcs), $filePath);
+            Excel::import(new ProductsVariantsImport($pcs, $es), $filePath);
             $this->info('CSV processed successfully.');
         } catch (\Exception $e) {
             $this->error('Error processing CSV: ' . $e->getMessage());

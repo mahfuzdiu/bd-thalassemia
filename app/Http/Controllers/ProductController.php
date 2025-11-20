@@ -2,19 +2,78 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductSearchRequest;
 use App\Http\Requests\ProductStoreRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Support\Facades\DB;
+use App\Services\ElasticService;
 
 class ProductController extends Controller
 {
     public ProductService $ps;
+    /**
+     * @var ElasticService
+     */
+    public ElasticService $es;
 
-    public function __construct(ProductService $ps)
+    public function __construct(ProductService $ps, ElasticService $es)
     {
         $this->ps = $ps;
+        $this->es = $es;
+    }
+
+    public function search(ProductSearchRequest $request)
+    {
+        $name = isset($request->validated()['name']) ? $request->validated()['name']: null;
+        $description = isset($request->validated()['description']) ? $request->validated()['description']: null;
+
+        // Build ES query dynamically
+        $must = [];
+
+        if ($name) {
+            $must[] = [
+                'match' => [
+                    'name' => [
+                        'query' => $name,
+                        'fuzziness' => 'AUTO'
+                    ]
+                ]
+            ];
+        }
+
+        if ($description) {
+            $must[] = [
+                'match' => [
+                    'description' => [
+                        'query' => $description,
+                        'fuzziness' => 'AUTO'
+                    ]
+                ]
+            ];
+        }
+
+        // If no search input, return empty result
+        if (empty($must)) {
+            return response()->json([]);
+        }
+
+        $params = [
+            'index' => 'products',
+            'body'  => [
+                'query' => [
+                    'bool' => [
+                        'should' => $must,
+                        'minimum_should_match' => 1
+                    ]
+                ]
+            ]
+        ];
+
+        $response = $this->es->getClient()->search($params);
+        $results = array_map(fn($hit) => $hit['_source'], $response['hits']['hits']);
+        return response()->json($results);
     }
 
     public function index()

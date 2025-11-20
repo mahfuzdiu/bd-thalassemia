@@ -7,6 +7,7 @@ use App\Models\AttributeValue;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
@@ -44,18 +45,26 @@ class ProductSeeder extends Seeder
         $productsData = [
             [
                 'name' => 'Cotton T-Shirt',
+                'product_sku' => strtoupper('T-Shirt-1'),
+                'uuid' => Str::uuid()->toString(),
                 'description' => 'A comfortable cotton T-Shirt perfect for everyday wear',
             ],
             [
                 'name' => 'Hoodie',
+                'product_sku' => strtoupper('Hoodie-1'),
+                'uuid' => Str::uuid()->toString(),
                 'description' => 'Warm polyester hoodie for winter',
             ],
             [
                 'name' => 'Shirt',
+                'product_sku' => strtoupper('Shirt-1'),
+                'uuid' => Str::uuid()->toString(),
                 'description' => 'Cotton shirt is available',
             ],
             [
                 'name' => 'Pant',
+                'product_sku' => '',
+                'uuid' => Str::uuid()->toString(),
                 'description' => 'Blue pant with discount',
             ],
         ];
@@ -67,7 +76,8 @@ class ProductSeeder extends Seeder
                 foreach ($sizeValues as $size) {
                     $variant = ProductVariant::create([
                         'product_id' => $product->id,
-                        'sku' => strtoupper("{$product->id}-{$color->value}-{$size->value}"),
+                        'uuid' => Str::uuid()->toString(),
+                        'variant_sku' => strtoupper("{$product->id}-{$color->value}-{$size->value}"),
                         'price' => rand(100, 500),
                         'stock' => rand(0, 100),
                     ]);

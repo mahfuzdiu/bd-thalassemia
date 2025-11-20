@@ -1,58 +1,58 @@
-## Project and Task Listing Assignment
+### Ecommerce project (Run Using Docker)
 
-## Run Using Docker
-
-1. Git pull project and go inside project-management-system directory
+##### 1. Git pull project and go inside project-management-system directory
 ```angular2html
-git pull git@github.com:mahfuzdiu/project-management-system.git
+git pull git@github.com:mahfuzdiu/bd-thalassemia.git
 ```
-2. Setup SMTP (mailchimp preferred) for testing in .env.example
+##### 2. Setup SMTP (mailchimp preferred) for testing in .env.example
 ```angular2html
 MAIL_USERNAME=mailtrap_username
 MAIL_PASSWORD=mailtrap_password
 ```
 
-3. Run below docker command. Wait a bit then visit ```http://localhost:8000/``` to check if the project is running
+
+##### 3. Run below docker command. Wait a bit then visit ```http://localhost:8000/``` to check if the project is running
 ```angular2html
 docker compose up -d
 ```
 
-4. Run following command before testing email notification on ```tasks/{id}```
+##### 4. Once project is up run below command to a terminal to import product data from csv
+```
+docker exec -it laravel-app php artisan app:import-products
+```
+
+##### 5. Auth flow
+
+```
+1. Register
+2. Login (user stays loggedin for 1 hour)
+3. Use /me api to check user
+4. Hit /refresh api if token expires to get a new valid token
+```
+
+##### 6. Run following command before testing email notification 
 ```angular2html
 docker compose exec app php artisan queue:work
 ```
-
-
-## Run Using Xamp
-
-### 1. Install [Xamp 8.2](https://www.apachefriends.org/download.html) and run apache and mysql
-
-### 2. Set php in environment file
-
-### 3. Create database
-```angular2html
-create a database: pms
-username: root
-password:
 ```
-4. Run the following commands
-```angular2html
-# git pull git@github.com:mahfuzdiu/project-management-system.git
-# composer install
-# php artisan key:generate
-# php artisan migrate
-# php artisan db:seed
-# php artisan serve
-```
-### 9. go to ```http://localhost:8000```
-### 10. To test email sending and job/queue I have used mailtrap tesing environment.
-
-Update the .env with smtp config.
-```angular2html
-MAIL_USERNAME=mailtrap_username
-MAIL_PASSWORD=mailtrap_password
+orders/status/{order_id} -> Sends email to customer
+orders/confirm/{order_id} -> Generates invoice of order
+orders/confirm/{order_id} -> Upon order confirmation stock is deducted
+orders/cancel/{order_id} -> Upon order cacellation product is restocked
+/orders/status/{{order_id}} -> Checnges status from processing -> shipped -> delivered
 ```
 
-RUN: ```php artisan queue:work``` from project directory
+##### 6. Elastic Search: Text Search
 
-mail will be working upon sending request on ```tasks/{id}``` api  
+Products are inserted into elastic search during csv upload. Even though data in elastic search can be updated upon the change of there state though functionality have not beeen implemented for this project due to time constraint.
+
+Api
+```
+products/search?description=Lightweight -> returns data based on query from elastic search
+```
+
+##### 7. Access Control
+
+Role based and policy based access control has been implemented
+
+##### 8. Added  couple of feature test and unit test  

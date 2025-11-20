@@ -21,6 +21,7 @@ Route::middleware(['throttle:api-limiter'])->prefix('v1')->group( function () {
         });
 
         Route::middleware('roles:admin,vendor')->group(function (){
+            Route::get('products/search', [ProductController::class, 'search']);
             Route::resource('products', ProductController::class);
             Route::get('orders', [OrderController::class, 'index']);
             Route::put('orders/{order_id}', [OrderController::class, 'update']);

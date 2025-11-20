@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Services\ElasticService;
 use App\Services\ProductImportService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -11,10 +12,15 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class ProductsVariantsImport implements WithHeadingRow, WithChunkReading, ToCollection
 {
-    public ProductImportService $pis;
+    private ProductImportService $pis;
+    /**
+     * @var ElasticService
+     */
+    private ElasticService $elasticService;
 
-    public function __construct(ProductImportService $pis){
+    public function __construct(ProductImportService $pis, ElasticService $elasticService){
         $this->pis = $pis;
+        $this->elasticService = $elasticService;
     }
 
     public function chunkSize(): int
@@ -87,6 +93,7 @@ class ProductsVariantsImport implements WithHeadingRow, WithChunkReading, ToColl
             $this->pis->insertAttributes($products);
             $this->pis->insertAttributeValues($products);
             $this->pis->insertVariantAttributeValuesPivot($products);
+            $this->elasticService->bulkIndex('products', $products);
         });
 
         //insert the batch into elastic search
