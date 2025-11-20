@@ -16,8 +16,11 @@
 /public/build
 /public/hot
 /public/storage
+/bootstrap/cache
 /storage/*.key
 /storage/pail
+/storage/logs
+/storage/framework/cache/data
 /vendor
 Homestead.json
 Homestead.yaml

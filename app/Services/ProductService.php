@@ -6,11 +6,30 @@ use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Contracts\ProductVariantsRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProductService
 {
+    private ProductRepositoryInterface $pri;
+    private ProductVariantsRepositoryInterface $pvri;
+
+    public function __construct(
+        ProductRepositoryInterface $pri,
+        ProductVariantsRepositoryInterface $pvri
+    )
+    {
+        $this->pri = $pri;
+        $this->pvri = $pvri;
+    }
+
+    public function getProducts()
+    {
+        return $this->pri->paginate(20);
+    }
+
     /**
      * @param $product
      * @return mixed
@@ -19,12 +38,12 @@ class ProductService
     {
         $uuid = Str::uuid()->toString();
         $product['uuid'] = $uuid;
-        return Product::create([
+        return $this->pri->create([
             'uuid' => $uuid,
             'product_sku' => strtoupper(trim($product['product_sku'])),
             'name' => strtolower($product['name']),
-            'description' => $product['description']]
-        );
+            'description' => $product['description']
+        ]);
     }
 
     /**
@@ -37,7 +56,7 @@ class ProductService
         $productsFromDb = Product::where('uuid', $product['uuid'])->pluck('id', 'uuid')->toArray();
         $productVariants = [];
 
-        foreach ($product['variants'] as &$variant){
+        foreach ($product['variants'] as &$variant) {
             //variants preparation
             $variantUid = Str::uuid()->toString();
             $variant['uuid'] = $variantUid;
@@ -52,7 +71,7 @@ class ProductService
             ];
         }
 
-        ProductVariant::insert($productVariants);
+        $this->pvri->insert($productVariants);
     }
 
     public function insertAttributes($product)
@@ -97,7 +116,8 @@ class ProductService
         AttributeValue::insertOrIgnore($attributeValues);
     }
 
-    public function insertVariantAttributeValuesPivot($product){
+    public function insertVariantAttributeValuesPivot($product)
+    {
         $productVariantsFromDb = ProductVariant::whereIn('uuid', array_column($product['variants'], 'uuid'))->pluck('id', 'uuid')->toArray();
 
         //variant and attribute value pivot connection
@@ -111,8 +131,8 @@ class ProductService
 
 
         $productVariantAttributeValuePivots = [];
-        foreach ($product['variants'] as $variant){
-            foreach ($variant['attributes'] as $key => $value){
+        foreach ($product['variants'] as $variant) {
+            foreach ($variant['attributes'] as $key => $value) {
                 $keyToFindAttributeValueId = strtolower($key) . '_' . strtolower($value);
                 $productVariantAttributeValuePivots[] = [
                     'attribute_value_id' => $attributeNameValueCombination[$keyToFindAttributeValueId],
@@ -131,7 +151,7 @@ class ProductService
     public function getProductMapper($productData)
     {
         $dataMapper = [];
-        foreach ($productData['variants'] as $variant){
+        foreach ($productData['variants'] as $variant) {
             $dataMapper[strtoupper(trim($variant['variant_sku']))] = [
                 'price' => $variant['price'],
                 'stock' => $variant['stock'],
@@ -159,6 +179,6 @@ class ProductService
             ];
         }
 
-        ProductVariant::upsert($updatedVariants, ['variant_sku'], ['price', 'stock', 'updated_at']);
+        $this->pvri->updateAndInsert($updatedVariants);
     }
 }

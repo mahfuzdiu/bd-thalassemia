@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
+            $table->id(); //indexed
             $table->string('uuid');
             $table->string('name');
-            $table->string('product_sku')->unique();
+            $table->string('product_sku')->unique(); //indexed
             $table->text('description');
             $table->boolean('is_public')->default(false);
             $table->foreignId('created_by')->nullable()->constrained('users');

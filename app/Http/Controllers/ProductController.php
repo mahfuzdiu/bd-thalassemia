@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductStoreRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Models\Product;
+use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Eloquent\ProductRepository;
 use App\Services\ProductService;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +21,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        return Product::with('variants')->paginate(1);
+        return $this->ps->getProducts();
     }
 
     /**

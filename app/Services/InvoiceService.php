@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\GenerateInvoiceOnOrderConfirmation;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,8 +13,6 @@ class InvoiceService
      */
     public function generateOrderInvoice($order)
     {
-        $pdf = Pdf::loadView('order.invoice', ['order' => $order]);
-        $filename = 'invoice-' . $order->order_number . '.pdf';
-        Storage::disk('local')->put('invoices/' . $filename, $pdf->output());
+        GenerateInvoiceOnOrderConfirmation::dispatch($order);
     }
 }
