@@ -1,0 +1,12 @@
+product_name,description,sku,price,stock,attr_color,attr_size,attr_material,attr_kg
+T-Shirt,Comfortable cotton T-Shirt,TSHIRT-RED-S,10,50,Red,S,Cotton,2
+T-Shirt,Comfortable cotton T-Shirt,TSHIRT-BLUE-M,11,40,Blue,M,Cotton,4
+T-Shirt,Comfortable cotton T-Shirt,TSHIRT-GREEN-L,12,30,Green,L,Polyester,6
+
+Hoodie,Warm and cozy hoodie,HOODIE-RED-S,20,30,Red,S,Cotton
+Hoodie,Warm and cozy hoodie,HOODIE-BLUE-M,21,25,Blue,M,Cotton
+Hoodie,Warm and cozy hoodie,HOODIE-GREEN-L,22,20,Green,L,Polyester
+
+Shorts,Lightweight summer shorts,SHORTS-RED-S,15,40,Red,S,Cotton
+Shorts,Lightweight summer shorts,SHORTS-BLUE-M,16,35,Blue,M,Cotton
+Shorts,Lightweight summer shorts,SHORTS-GREEN-L,17,30,Green,L,Polyester

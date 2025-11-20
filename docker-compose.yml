@@ -1,0 +1,44 @@
+services:
+  app:
+    build: .
+    container_name: laravel-app
+    working_dir: /var/www/html
+    volumes:
+      - ./command/:/usr/local/bin/commands
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: >
+      sh -c "
+      chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache &&
+      chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache &&
+      composer install --no-interaction --optimize-autoloader &&
+      php artisan key:generate &&
+      /usr/local/bin/commands/wait-for-db.sh &&
+      php artisan migrate &&
+      php artisan db:seed &&
+      php artisan serve --host=0.0.0.0 --port=8000
+      "
+    networks:
+      - laravel
+
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: pms
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - laravel
+
+volumes:
+  dbdata:
+
+networks:
+  laravel:
+    driver: bridge
